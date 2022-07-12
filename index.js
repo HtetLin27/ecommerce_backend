@@ -4,7 +4,7 @@ const app = express();
 app.use(express.urlencoded({extended:true}));
 app.use(express.json());
 const fileUpload=require("express-fileupload");
-const {createDB,createColletion,insertProduct,getAllData,getData,updateData,deleteData,insertService,insertUser} = require("./models/DB")
+const {createDB,createColletion,insertProduct,getAllData,getData,updateData,deleteData,insertService,insertUser,userLogin} = require("./models/DB")
 
 app.use(function(req,res,next){
     res.setHeader("Access-Control-Allow-Origin","http://localhost:3000");
@@ -169,5 +169,15 @@ app.post('/users/:id/delete',fileUpload(),function(req,res){
     var id = req.params.id;
     deleteData("one_click","users",id);
     res.send({message:"User Deleted Successfully",status:true})
+})
+app.post('/login',fileUpload(),function(req,res){
+    let body = JSON.parse(req.body.data);
+    let email = body.email;
+    let password = body.password;
+    try{
+         userLogin(email,password,res,req)
+    }catch(e){
+
+    }
 })
 app.listen(8000,'127.0.0.1');

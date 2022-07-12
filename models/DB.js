@@ -1,7 +1,7 @@
 const mongodb = require("mongodb");
 const mongodbClient = mongodb.MongoClient;
 const url ="mongodb://localhost:27017/";
-
+const bcrypt = require("bcrypt");
 
 
 function createDB(dbName){
@@ -110,4 +110,21 @@ function deleteData(dbName,collName,id){
         })
     })
 }
-module.exports={createDB,createColletion,insertProduct,getAllData,getData,updateData,deleteData,insertService,insertUser};
+function userLogin(email,password,res,req){
+    mongodbClient.connect(url,function(err,db){
+        if(err){throw err};
+        var dbo =db.db("one_click");
+        dbo.collection('users').find({email: email}).toArray(function(err,result){
+            if(err){throw err};
+            // console.log(result);
+            bcrypt.compare(password,result[0].password,function(err,response){
+                if(response === true){
+                    res.send({status:true,message:"Login Successfully"})
+                }else{ 
+                    res.send({status:false,message:"Username and Password Invalid"})}
+            })
+
+        })
+    })
+}
+module.exports={createDB,createColletion,insertProduct,getAllData,getData,updateData,deleteData,insertService,insertUser,userLogin};
