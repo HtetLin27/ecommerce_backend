@@ -1,6 +1,7 @@
 const bcrypt =require('bcrypt')
 const express = require('express');
 const app = express();
+const jwt = require("jsonwebtoken")
 app.use(express.urlencoded({extended:true}));
 app.use(express.json());
 const fileUpload=require("express-fileupload");
@@ -8,7 +9,23 @@ const {createDB,createColletion,insertProduct,getAllData,getData,updateData,dele
 
 app.use(function(req,res,next){
     res.setHeader("Access-Control-Allow-Origin","http://localhost:3000");
+    res.setHeader("Access-Control-Allow-Headers","Authorization");
+    if(req.path === "/" ||  req.path === "/products" || req.path === "/services"){
+        next();
+    }else{
+        var reqToken =req.headers.authorization;
+    if(!reqToken){
+        res.send([{error:"Please Provide Token"}])
+    }
+    console.log(reqToken);
+    jwt.verify(reqToken.split(" ")[1],"secret",()=>(err,value)=>{
+        if(err){
+            res.send({error:"Failed To Authenticate Token"});
+        }
+    })
     next();
+    }
+   
 })
 app.get('/',function(req,res){
     res.send("Hello")

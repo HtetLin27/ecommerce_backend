@@ -2,6 +2,7 @@ const mongodb = require("mongodb");
 const mongodbClient = mongodb.MongoClient;
 const url ="mongodb://localhost:27017/";
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken")
 
 
 function createDB(dbName){
@@ -119,7 +120,8 @@ function userLogin(email,password,res,req){
             // console.log(result);
             bcrypt.compare(password,result[0].password,function(err,response){
                 if(response === true){
-                    res.send({status:true,message:"Login Successfully"})
+                    var tok=   jwt.sign({data:{email:email,password:result[0].password}},"secret")
+                    res.send({status:true,message:"Login Successfully",token:tok})
                 }else{ 
                     res.send({status:false,message:"Username and Password Invalid"})}
             })
