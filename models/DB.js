@@ -129,4 +129,40 @@ function userLogin(email,password,res,req){
         })
     })
 }
-module.exports={createDB,createColletion,insertProduct,getAllData,getData,updateData,deleteData,insertService,insertUser,userLogin};
+function insertCustomer(name,phone,cart,dbName,collName){
+  mongodbClient.connect(url,function(err,db){
+    if(err) throw err;
+    var dbo = db.db(dbName);
+    var data ={
+        name:name,
+        phone:phone
+    }
+    dbo.collection(collName).insertOne(data,function(err,result){
+        if(err){throw err;}
+        cart.forEach((e)=>{
+            var item ={
+                tilte:e.title,
+                price:e.price,
+                qty:e.qty,
+                customer_id:result.insertedId.toString()
+            }
+             dbo.collection("orders").insertOne(item,function(err,result){
+                if(err){throw err};
+
+             })
+        })
+    })
+  })
+}
+function getOrder(dbName,collName,id,response){
+    mongodbClient.connect(url,function(err,db){
+        if(err){throw err};
+        var dbo = db.db(dbName);
+        dbo.collection(collName).find({customer_id:id}).toArray(function(err,result){
+            if(err){throw err};
+            response.send(result);
+        })
+
+    })
+}
+module.exports={getOrder,createDB,createColletion,insertProduct,getAllData,getData,updateData,deleteData,insertService,insertUser,userLogin,insertCustomer};
